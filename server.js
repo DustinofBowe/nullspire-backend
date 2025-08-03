@@ -1,36 +1,85 @@
 const express = require("express");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 const app = express();
-const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
-let characters = [
-  { name: "Opifex2012", level: 13, organization: "Cultist" },
-  { name: "Nit", level: 4, organization: "Engineer" },
-];
+const ADMIN_PASSWORD = "ChatGPT123";
 
+let pendingCharacters = [];
+let approvedCharacters = [];
+let nextId = 1;
+
+// Public: get approved characters by name
 app.get("/api/characters", (req, res) => {
-  const name = req.query.name?.toLowerCase();
-  if (!name) return res.status(400).json({ error: "Missing name" });
-  const match = characters.find((c) => c.name.toLowerCase() === name);
-  if (!match) return res.status(404).json({ error: "Character not found" });
-  res.json(match);
+  const nameQuery = (req.query.name || "").toLowerCase();
+  const character = approvedCharacters.find(
+    (c) => c.name.toLowerCase() === nameQuery
+  );
+  if (character) {
+    res.json(character);
+  } else {
+    res.status(404).json({ error: "Character not found." });
+  }
 });
 
+// Public: submit new character (goes to pending)
 app.post("/api/submit", (req, res) => {
   const { name, level, organization } = req.body;
   if (!name || !level || !organization) {
-    return res.status(400).json({ error: "All fields required" });
+    return res.status(400).json({ error: "Missing fields" });
   }
-  const exists = characters.find((c) => c.name.toLowerCase() === name.toLowerCase());
-  if (exists) {
-    return res.status(409).json({ error: "Character already exists" });
-  }
-  const newCharacter = { name, level: parseInt(level), organization };
-  characters.push(newCharacter);
-  res.status(201).json({ message: "Character added", character: newCharacter });
+  const newChar = {
+    id: nextId++,
+    name,
+    level,
+    organization,
+  };
+  pendingCharacters.push(newChar);
+  res.json({ message: "Submission received, pending approval." });
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Admin auth middleware (simple password check)
+function checkAdminPassword(req, res, next) {
+  const password = req.headers["x-admin-password"];
+  if (password === ADMIN_PASSWORD) {
+    next();
+  } else {
+    res.status(401).json({ error: "Unauthorized" });
+  }
+}
+
+// Admin: list pending characters
+app.get("/api/pending", checkAdminPassword, (req, res) => {
+  res.json(pendingCharacters);
+});
+
+// Admin: approve a pending character by id
+app.post("/api/pending/approve", checkAdminPassword, (req, res) => {
+  const { id } = req.body;
+  const index = pendingCharacters.findIndex((c) => c.id === id);
+  if (index === -1) {
+    return res.status(404).json({ error: "Pending character not found" });
+  }
+  const [approved] = pendingCharacters.splice(index, 1);
+  approvedCharacters.push(approved);
+  res.json({ message: "Character approved", character: approved });
+});
+
+// Admin: reject a pending character by id
+app.post("/api/pending/reject", checkAdminPassword, (req, res) => {
+  const { id } = req.body;
+  const index = pendingCharacters.findIndex((c) => c.id === id);
+  if (index === -1) {
+    return res.status(404).json({ error: "Pending character not found" });
+  }
+  pendingCharacters.splice(index, 1);
+  res.json({ message: "Character rejected" });
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Backend API running on port ${PORT}`);
+});
