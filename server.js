@@ -12,7 +12,7 @@ let pendingCharacters = [];
 let approvedCharacters = [];
 let nextId = 1;
 
-// Public: get approved character by name
+// Public: get approved characters by name
 app.get("/api/characters", (req, res) => {
   const nameQuery = (req.query.name || "").toLowerCase();
   const character = approvedCharacters.find(
@@ -78,40 +78,6 @@ app.post("/api/pending/reject", checkAdminPassword, (req, res) => {
   }
   pendingCharacters.splice(index, 1);
   res.json({ message: "Character rejected" });
-});
-
-// Admin: get all approved characters
-app.get("/api/approved", checkAdminPassword, (req, res) => {
-  res.json(approvedCharacters);
-});
-
-// Admin: delete approved character by id
-app.delete("/api/approved/:id", checkAdminPassword, (req, res) => {
-  const id = Number(req.params.id);
-  const index = approvedCharacters.findIndex((c) => c.id === id);
-  if (index === -1) {
-    return res.status(404).json({ error: "Approved character not found" });
-  }
-  approvedCharacters.splice(index, 1);
-  res.json({ message: "Approved character deleted" });
-});
-
-// Admin: update approved character by id
-app.put("/api/approved/:id", checkAdminPassword, (req, res) => {
-  const id = Number(req.params.id);
-  const { name, level, organization, profession } = req.body;
-  const character = approvedCharacters.find((c) => c.id === id);
-  if (!character) {
-    return res.status(404).json({ error: "Approved character not found" });
-  }
-  if (!name || !level || !organization || !profession) {
-    return res.status(400).json({ error: "Missing fields" });
-  }
-  character.name = name;
-  character.level = level;
-  character.organization = organization;
-  character.profession = profession;
-  res.json({ message: "Character updated", character });
 });
 
 const PORT = process.env.PORT || 3001;
