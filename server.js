@@ -12,7 +12,7 @@ let pendingCharacters = [];
 let approvedCharacters = [];
 let nextId = 1;
 
-// Public: get approved characters by name
+// Public: get approved character by name
 app.get("/api/characters", (req, res) => {
   const nameQuery = (req.query.name || "").toLowerCase();
   const character = approvedCharacters.find(
@@ -42,7 +42,7 @@ app.post("/api/submit", (req, res) => {
   res.json({ message: "Submission received, pending approval." });
 });
 
-// Admin auth middleware (simple password check)
+// Admin auth middleware
 function checkAdminPassword(req, res, next) {
   const password = req.headers["x-admin-password"];
   if (password === ADMIN_PASSWORD) {
@@ -78,6 +78,36 @@ app.post("/api/pending/reject", checkAdminPassword, (req, res) => {
   }
   pendingCharacters.splice(index, 1);
   res.json({ message: "Character rejected" });
+});
+
+// Admin: get all approved characters
+app.get("/api/approved", checkAdminPassword, (req, res) => {
+  res.json(approvedCharacters);
+});
+
+// Admin: delete approved character by id
+app.post("/api/approved/delete", checkAdminPassword, (req, res) => {
+  const { id } = req.body;
+  const index = approvedCharacters.findIndex((c) => c.id === id);
+  if (index === -1) {
+    return res.status(404).json({ error: "Character not found" });
+  }
+  approvedCharacters.splice(index, 1);
+  res.json({ message: "Character deleted" });
+});
+
+// Admin: edit approved character
+app.post("/api/approved/edit", checkAdminPassword, (req, res) => {
+  const { id, field, value } = req.body;
+  const char = approvedCharacters.find((c) => c.id === id);
+  if (!char) {
+    return res.status(404).json({ error: "Character not found" });
+  }
+  if (!["name", "level", "organization", "profession"].includes(field)) {
+    return res.status(400).json({ error: "Invalid field" });
+  }
+  char[field] = value;
+  res.json({ message: "Character updated", character: char });
 });
 
 const PORT = process.env.PORT || 3001;
