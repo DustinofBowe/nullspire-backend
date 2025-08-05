@@ -6,7 +6,7 @@ const app = express();
 const FRONTEND_URL = "https://nullspire-forum-frontend-la3jcib49-dustinofbowes-projects.vercel.app";
 
 app.use(cors({
-  origin: 'https://nullspire-forum-frontend-or18s3du2-dustinofbowes-projects.vercel.app',
+  origin: 'https://nullspire-frontend-j041pyrs2-dustinofbowes-projects.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-Password']
 }));
