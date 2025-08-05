@@ -1,0 +1,6 @@
+app = "nullspire-backend"
+primary_region = "iad"
+
+[mounts]
+  source = "data"
+  destination = "/data"
