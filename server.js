@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const fs = require("fs");
+const path = require("path");
 const app = express();
 
 const FRONTEND_URL = "https://nullspire-frontend-pi.vercel.app";
@@ -18,9 +20,36 @@ app.use(bodyParser.json());
 
 const ADMIN_PASSWORD = "ChatGPT123";
 
+const DATA_FILE = path.join(__dirname, "data.json");
+
 let pendingCharacters = [];
 let approvedCharacters = [];
 let nextId = 1;
+
+// Load saved data on server start
+function loadData() {
+  if (fs.existsSync(DATA_FILE)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(DATA_FILE));
+      pendingCharacters = data.pendingCharacters || [];
+      approvedCharacters = data.approvedCharacters || [];
+      nextId = data.nextId || 1;
+    } catch (e) {
+      console.error("Failed to load data.json", e);
+    }
+  }
+}
+
+function saveData() {
+  const data = {
+    pendingCharacters,
+    approvedCharacters,
+    nextId
+  };
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+}
+
+loadData();
 
 // Public: get approved characters by partial name match
 app.get("/api/characters", (req, res) => {
@@ -50,6 +79,7 @@ app.post("/api/submit", (req, res) => {
     profession,
   };
   pendingCharacters.push(newChar);
+  saveData();
   res.json({ message: "Submission received, pending approval." });
 });
 
@@ -77,6 +107,7 @@ app.post("/api/pending/approve", checkAdminPassword, (req, res) => {
   }
   const [approved] = pendingCharacters.splice(index, 1);
   approvedCharacters.push(approved);
+  saveData();
   res.json({ message: "Character approved", character: approved });
 });
 
@@ -88,6 +119,7 @@ app.post("/api/pending/reject", checkAdminPassword, (req, res) => {
     return res.status(404).json({ error: "Pending character not found" });
   }
   pendingCharacters.splice(index, 1);
+  saveData();
   res.json({ message: "Character rejected" });
 });
 
@@ -104,6 +136,7 @@ app.post("/api/approved/delete", checkAdminPassword, (req, res) => {
     return res.status(404).json({ error: "Character not found" });
   }
   approvedCharacters.splice(index, 1);
+  saveData();
   res.json({ message: "Character deleted" });
 });
 
@@ -118,6 +151,7 @@ app.post("/api/approved/edit", checkAdminPassword, (req, res) => {
     return res.status(400).json({ error: "Invalid field" });
   }
   char[field] = value;
+  saveData();
   res.json({ message: "Character updated", character: char });
 });
 
