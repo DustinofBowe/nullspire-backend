@@ -6,10 +6,11 @@ const app = express();
 const FRONTEND_URL = "https://nullspire-forum-frontend-la3jcib49-dustinofbowes-projects.vercel.app";
 
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: 'https://nullspire-forum-frontend-or18s3du2-dustinofbowes-projects.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-Password']
 }));
+
 app.use(bodyParser.json());
 
 const ADMIN_PASSWORD = "ChatGPT123";
