@@ -3,10 +3,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
 
-const FRONTEND_URL = "https://nullspire-forum-frontend-la3jcib49-dustinofbowes-projects.vercel.app";
+const FRONTEND_URL = "https://nullspire-frontend-pi.vercel.app";
 
 app.use(cors({
-  origin: 'https://nullspire-frontend-j041pyrs2-dustinofbowes-projects.vercel.app',
+  origin: FRONTEND_URL,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-Password']
 }));
