@@ -6,7 +6,10 @@ const app = express();
 const FRONTEND_URL = "https://nullspire-frontend-pi.vercel.app";
 
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: [
+    'https://nullspire-frontend-pi.vercel.app',
+    'https://nullspire-frontend-ktmwv3kmz-dustinofbowes-projects.vercel.app'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-Password']
 }));
