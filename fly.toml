@@ -1,6 +1,10 @@
 app = "nullspire-backend"
-primary_region = "ewr"
+
+[build]
+
+[env]
+PORT = "3001"
 
 [mounts]
-  source = "data"
+  source = "data_volume"
   destination = "/data"
