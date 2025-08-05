@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 
 const ADMIN_PASSWORD = "ChatGPT123";
 
-const DATA_FILE = path.join(__dirname, "data.json");
+const DATA_FILE = "/data/data.json";
 
 let pendingCharacters = [];
 let approvedCharacters = [];
