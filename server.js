@@ -19,14 +19,15 @@ let pendingCharacters = [];
 let approvedCharacters = [];
 let nextId = 1;
 
-// Public: get approved character by name
+// Public: get approved characters by partial name match
 app.get("/api/characters", (req, res) => {
   const nameQuery = (req.query.name || "").toLowerCase();
-  const character = approvedCharacters.find(
-    (c) => c.name.toLowerCase() === nameQuery
+  const matches = approvedCharacters.filter((c) =>
+    c.name.toLowerCase().includes(nameQuery)
   );
-  if (character) {
-    res.json(character);
+
+  if (matches.length > 0) {
+    res.json(matches);
   } else {
     res.status(404).json({ error: "Character not found." });
   }
