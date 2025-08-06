@@ -10,7 +10,8 @@ const FRONTEND_URL = "https://nullspire-frontend-pi.vercel.app";
 app.use(cors({
   origin: [
     'https://nullspire-frontend-pi.vercel.app',
-    'https://nullspire-frontend-ktmwv3kmz-dustinofbowes-projects.vercel.app'
+    'https://nullspire-frontend-ktmwv3kmz-dustinofbowes-projects.vercel.app',
+    'https://nullspire-frontend-24d2gec4r-dustinofbowes-projects.vercel.app' // ✅ Add this one
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-Password']
